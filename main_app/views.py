@@ -6,10 +6,10 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
 
+from .EmailBackend import EmailBackend
 from .models import Attendance, Session, Subject
 
 # Create your views here.
-
 
 def login_page(request):
     if request.user.is_authenticated:
@@ -19,34 +19,34 @@ def login_page(request):
             return redirect(reverse("staff_home"))
         else:
             return redirect(reverse("student_home"))
-    return render(request, 'main_app/login.html')
-
+    return render(request, 'main_app/login.html', {'site_key': '6LdkIO8pAAAAAKhDbgoC9WigryTtNZS5ks0ME6rH'})
 
 def doLogin(request, **kwargs):
     if request.method != 'POST':
         return HttpResponse("<h4>Denied</h4>")
     else:
-        # Verify reCAPTCHA token
+        # Google reCAPTCHA
         captcha_token = request.POST.get('g-recaptcha-response')
         captcha_url = "https://www.google.com/recaptcha/api/siteverify"
-        captcha_key = "6LdkIO8pAAAAAPNSpvZNNvH2zpAEe2qhb9Ys2Abi"
+        captcha_key = "6LdkIO8pAAAAAKhDbgoC9WigryTtNZS5ks0ME6rH"
         data = {
             'secret': captcha_key,
             'response': captcha_token
         }
+        # Make request
         try:
             captcha_server = requests.post(url=captcha_url, data=data)
             response = json.loads(captcha_server.text)
             if not response['success']:
                 messages.error(request, 'Invalid Captcha. Try Again')
                 return redirect('/')
-        except requests.exceptions.RequestException as e:
+        except:
             messages.error(request, 'Captcha could not be verified. Try Again')
             return redirect('/')
         
-        # Authenticate user
-        user = authenticate(request, username=request.POST.get('email'), password=request.POST.get('password'))
-        if user is not None:
+        # Authenticate
+        user = EmailBackend.authenticate(request, username=request.POST.get('email'), password=request.POST.get('password'))
+        if user:
             login(request, user)
             if user.user_type == '1':
                 return redirect(reverse("admin_home"))
@@ -58,12 +58,10 @@ def doLogin(request, **kwargs):
             messages.error(request, "Invalid details")
             return redirect("/")
 
-
 def logout_user(request):
-    if request.user is not None:
+    if request.user:
         logout(request)
     return redirect("/")
-
 
 @csrf_exempt
 def get_attendance(request):
@@ -76,15 +74,14 @@ def get_attendance(request):
         attendance_list = []
         for attd in attendance:
             data = {
-                    "id": attd.id,
-                    "attendance_date": str(attd.date),
-                    "session": attd.session.id
-                    }
+                "id": attd.id,
+                "attendance_date": str(attd.date),
+                "session": attd.session.id
+            }
             attendance_list.append(data)
         return JsonResponse(json.dumps(attendance_list), safe=False)
     except Exception as e:
         return None
-
 
 def showFirebaseJS(request):
     data = """
@@ -98,14 +95,14 @@ def showFirebaseJS(request):
     // your app's Firebase config object.
     // https://firebase.google.com/docs/web/setup#config-object
     firebase.initializeApp({
-        apiKey: "AIzaSyBarDWWHTfTMSrtc5Lj3Cdw5dEvjAkFwtM",
-        authDomain: "sms-with-django.firebaseapp.com",
-        databaseURL: "https://sms-with-django.firebaseio.com",
-        projectId: "sms-with-django",
-        storageBucket: "sms-with-django.appspot.com",
-        messagingSenderId: "945324593139",
-        appId: "1:945324593139:web:03fa99a8854bbd38420c86",
-        measurementId: "G-2F2RXTL9GT"
+        apiKey: "your_api_key",
+        authDomain: "your_auth_domain",
+        databaseURL: "your_database_url",
+        projectId: "your_project_id",
+        storageBucket: "your_storage_bucket",
+        messagingSenderId: "your_messaging_sender_id",
+        appId: "your_app_id",
+        measurementId: "your_measurement_id"
     });
 
     // Retrieve an instance of Firebase Messaging so that it can handle background

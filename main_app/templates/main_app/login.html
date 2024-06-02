@@ -18,8 +18,6 @@
     <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-    <!-- Google Recaptcha     -->
-    <script src="https://www.google.com/recaptcha/api.js?render=6LdkIO8pAAAAAKhDbgoC9WigryTtNZS5ks0ME6rH"></script>
 
 </head>
 
@@ -63,9 +61,7 @@
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <div class="g-recaptcha" data-sitekey="6LdkIO8pAAAAAKhDbgoC9WigryTtNZS5ks0ME6rH"></div>
-                                                               
-
+                        <div class="g-recaptcha" data-sitekey="{{ site_key }}"></div>
                     </div>
                     <div class="row">
                         <div class="col-8">
@@ -80,17 +76,11 @@
                         <div class="col-4">
                             <button type="submit" class="btn btn-primary btn-block">Sign In</button>
                         </div>
-
-
-                        <!-- /.col -->
                     </div>
                 </form>
-
-
                 <p class="mb-1">
                     <a href="{% url 'password_reset' %}">I forgot my password</a>
                 </p>
-
             </div>
             <!-- /.login-card-body -->
         </div>
@@ -103,7 +93,8 @@
     <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <!-- AdminLTE App -->
     <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
-
+    <!-- Google Recaptcha -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 
 </html>
