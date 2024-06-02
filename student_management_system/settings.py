@@ -30,10 +30,10 @@ SECRET_KEY = 'lo1y3gpzuu61mn@%*1*zmcg+st!+kpr&b6$rl)xxs$_*n7y4^a'
 DEBUG = True
 
 # ALLOWED_HOSTS = ['smswithdjango.herokuapp.com']
-ALLOWED_HOSTS = ['*']  # Not recommended but useful in dev mode
+ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ['https://ice-student.onrender.com','https://*.127.0.0.1']
 
 
-# Application definition
 
 INSTALLED_APPS = [
     # Django Apps
