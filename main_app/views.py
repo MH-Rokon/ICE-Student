@@ -22,33 +22,41 @@ def login_page(request):
             return redirect(reverse("student_home"))
     return render(request, 'main_app/login.html')
 
+import requests
+import json
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.contrib.auth import authenticate, login
+from django.urls import reverse
+from django.http import HttpResponse
 
 def doLogin(request, **kwargs):
     if request.method != 'POST':
         return HttpResponse("<h4>Denied</h4>")
     else:
-        #Google recaptcha
+        # Google reCAPTCHA
         captcha_token = request.POST.get('g-recaptcha-response')
         captcha_url = "https://www.google.com/recaptcha/api/siteverify"
-        captcha_key = "6LfswtgZAAAAABX9gbLqe-d97qE2g1JP8oUYritJ"
+        # Use the correct site key and secret key provided
+        captcha_key = "6LdkIO8pAAAAAPNSpvZNNvH2zpAEe2qhb9Ys2Abi"
         data = {
             'secret': captcha_key,
             'response': captcha_token
         }
-        # Make request
+        # Make request to verify the reCAPTCHA token
         try:
             captcha_server = requests.post(url=captcha_url, data=data)
             response = json.loads(captcha_server.text)
-            if response['success'] == False:
-                messages.error(request, 'Invalid Captcha. Try Again')
+            if not response['success']:
+                messages.error(request, 'Invalid Captcha. Please try again.')
                 return redirect('/')
-        except:
-            messages.error(request, 'Captcha could not be verified. Try Again')
+        except Exception as e:
+            messages.error(request, 'Captcha could not be verified. Please try again.')
             return redirect('/')
         
-        #Authenticate
-        user = EmailBackend.authenticate(request, username=request.POST.get('email'), password=request.POST.get('password'))
-        if user != None:
+        # Authenticate user
+        user = authenticate(request, username=request.POST.get('email'), password=request.POST.get('password'))
+        if user is not None:
             login(request, user)
             if user.user_type == '1':
                 return redirect(reverse("admin_home"))
@@ -57,9 +65,8 @@ def doLogin(request, **kwargs):
             else:
                 return redirect(reverse("student_home"))
         else:
-            messages.error(request, "Invalid details")
+            messages.error(request, "Invalid credentials. Please try again.")
             return redirect("/")
-
 
 
 def logout_user(request):
