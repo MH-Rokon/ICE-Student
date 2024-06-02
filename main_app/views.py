@@ -1,15 +1,11 @@
 import json
-import requests
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.shortcuts import redirect, render, reverse
 from django.views.decorators.csrf import csrf_exempt
-
 from .EmailBackend import EmailBackend
 from .models import Attendance, Session, Subject
-
-# Create your views here.
 
 def login_page(request):
     if request.user.is_authenticated:
@@ -19,32 +15,12 @@ def login_page(request):
             return redirect(reverse("staff_home"))
         else:
             return redirect(reverse("student_home"))
-    return render(request, 'main_app/login.html', {'site_key': '6LdkIO8pAAAAAKhDbgoC9WigryTtNZS5ks0ME6rH'})
+    return render(request, 'main_app/login.html')
 
 def doLogin(request, **kwargs):
     if request.method != 'POST':
         return HttpResponse("<h4>Denied</h4>")
     else:
-        # Google reCAPTCHA
-        captcha_token = request.POST.get('g-recaptcha-response')
-        captcha_url = "https://www.google.com/recaptcha/api/siteverify"
-        captcha_key = "6LdkIO8pAAAAAKhDbgoC9WigryTtNZS5ks0ME6rH"
-        data = {
-            'secret': captcha_key,
-            'response': captcha_token
-        }
-        # Make request
-        try:
-            captcha_server = requests.post(url=captcha_url, data=data)
-            response = json.loads(captcha_server.text)
-            if not response['success']:
-                messages.error(request, 'Invalid Captcha. Try Again')
-                return redirect('/')
-        except:
-            messages.error(request, 'Captcha could not be verified. Try Again')
-            return redirect('/')
-        
-        # Authenticate
         user = EmailBackend.authenticate(request, username=request.POST.get('email'), password=request.POST.get('password'))
         if user:
             login(request, user)
@@ -85,36 +61,6 @@ def get_attendance(request):
 
 def showFirebaseJS(request):
     data = """
-    // Give the service worker access to Firebase Messaging.
-    // Note that you can only use Firebase Messaging here, other Firebase libraries
-    // are not available in the service worker.
-    importScripts('https://www.gstatic.com/firebasejs/7.22.1/firebase-app.js');
-    importScripts('https://www.gstatic.com/firebasejs/7.22.1/firebase-messaging.js');
-
-    // Initialize the Firebase app in the service worker by passing in
-    // your app's Firebase config object.
-    // https://firebase.google.com/docs/web/setup#config-object
-    firebase.initializeApp({
-        apiKey: "your_api_key",
-        authDomain: "your_auth_domain",
-        databaseURL: "your_database_url",
-        projectId: "your_project_id",
-        storageBucket: "your_storage_bucket",
-        messagingSenderId: "your_messaging_sender_id",
-        appId: "your_app_id",
-        measurementId: "your_measurement_id"
-    });
-
-    // Retrieve an instance of Firebase Messaging so that it can handle background
-    // messages.
-    const messaging = firebase.messaging();
-    messaging.setBackgroundMessageHandler(function (payload) {
-        const notification = JSON.parse(payload);
-        const notificationOption = {
-            body: notification.body,
-            icon: notification.icon
-        }
-        return self.registration.showNotification(payload.notification.title, notificationOption);
-    });
+   
     """
     return HttpResponse(data, content_type='application/javascript')
