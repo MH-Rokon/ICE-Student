@@ -9,9 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 from .EmailBackend import EmailBackend
 from .models import Attendance, Session, Subject
 
-# Create your views here.
-
-
 def login_page(request):
     if request.user.is_authenticated:
         if request.user.user_type == '1':
@@ -22,38 +19,10 @@ def login_page(request):
             return redirect(reverse("student_home"))
     return render(request, 'main_app/login.html')
 
-import requests
-import json
-from django.contrib import messages
-from django.shortcuts import redirect
-from django.contrib.auth import authenticate, login
-from django.urls import reverse
-from django.http import HttpResponse
-
-def doLogin(request, **kwargs):
+def doLogin(request):
     if request.method != 'POST':
         return HttpResponse("<h4>Denied</h4>")
     else:
-        # Google reCAPTCHA
-        captcha_token = request.POST.get('g-recaptcha-response')
-        captcha_url = "https://www.google.com/recaptcha/api/siteverify"
-        # Use the correct site key and secret key provided
-        captcha_key = "6LdkIO8pAAAAAPNSpvZNNvH2zpAEe2qhb9Ys2Abi"
-        data = {
-            'secret': captcha_key,
-            'response': captcha_token
-        }
-        # Make request to verify the reCAPTCHA token
-        try:
-            captcha_server = requests.post(url=captcha_url, data=data)
-            response = json.loads(captcha_server.text)
-            if not response['success']:
-                messages.error(request, 'Invalid Captcha. Please try again.')
-                return redirect('/')
-        except Exception as e:
-            messages.error(request, 'Captcha could not be verified. Please try again.')
-            return redirect('/')
-        
         # Authenticate user
         user = authenticate(request, username=request.POST.get('email'), password=request.POST.get('password'))
         if user is not None:
@@ -68,12 +37,9 @@ def doLogin(request, **kwargs):
             messages.error(request, "Invalid credentials. Please try again.")
             return redirect("/")
 
-
 def logout_user(request):
-    if request.user != None:
-        logout(request)
+    logout(request)
     return redirect("/")
-
 
 @csrf_exempt
 def get_attendance(request):
@@ -95,39 +61,38 @@ def get_attendance(request):
     except Exception as e:
         return None
 
-
 def showFirebaseJS(request):
     data = """
     // Give the service worker access to Firebase Messaging.
-// Note that you can only use Firebase Messaging here, other Firebase libraries
-// are not available in the service worker.
-importScripts('https://www.gstatic.com/firebasejs/7.22.1/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/7.22.1/firebase-messaging.js');
+    // Note that you can only use Firebase Messaging here, other Firebase libraries
+    // are not available in the service worker.
+    importScripts('https://www.gstatic.com/firebasejs/7.22.1/firebase-app.js');
+    importScripts('https://www.gstatic.com/firebasejs/7.22.1/firebase-messaging.js');
 
-// Initialize the Firebase app in the service worker by passing in
-// your app's Firebase config object.
-// https://firebase.google.com/docs/web/setup#config-object
-firebase.initializeApp({
-    apiKey: "AIzaSyBarDWWHTfTMSrtc5Lj3Cdw5dEvjAkFwtM",
-    authDomain: "sms-with-django.firebaseapp.com",
-    databaseURL: "https://sms-with-django.firebaseio.com",
-    projectId: "sms-with-django",
-    storageBucket: "sms-with-django.appspot.com",
-    messagingSenderId: "945324593139",
-    appId: "1:945324593139:web:03fa99a8854bbd38420c86",
-    measurementId: "G-2F2RXTL9GT"
-});
+    // Initialize the Firebase app in the service worker by passing in
+    // your app's Firebase config object.
+    // https://firebase.google.com/docs/web/setup#config-object
+    firebase.initializeApp({
+        apiKey: "AIzaSyBarDWWHTfTMSrtc5Lj3Cdw5dEvjAkFwtM",
+        authDomain: "sms-with-django.firebaseapp.com",
+        databaseURL: "https://sms-with-django.firebaseio.com",
+        projectId: "sms-with-django",
+        storageBucket: "sms-with-django.appspot.com",
+        messagingSenderId: "945324593139",
+        appId: "1:945324593139:web:03fa99a8854bbd38420c86",
+        measurementId: "G-2F2RXTL9GT"
+    });
 
-// Retrieve an instance of Firebase Messaging so that it can handle background
-// messages.
-const messaging = firebase.messaging();
-messaging.setBackgroundMessageHandler(function (payload) {
-    const notification = JSON.parse(payload);
-    const notificationOption = {
-        body: notification.body,
-        icon: notification.icon
-    }
-    return self.registration.showNotification(payload.notification.title, notificationOption);
-});
+    // Retrieve an instance of Firebase Messaging so that it can handle background
+    // messages.
+    const messaging = firebase.messaging();
+    messaging.setBackgroundMessageHandler(function (payload) {
+        const notification = JSON.parse(payload);
+        const notificationOption = {
+            body: notification.body,
+            icon: notification.icon
+        }
+        return self.registration.showNotification(payload.notification.title, notificationOption);
+    });
     """
     return HttpResponse(data, content_type='application/javascript')
