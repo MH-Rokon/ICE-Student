@@ -105,7 +105,7 @@ WSGI_APPLICATION = 'student_management_system.wsgi.application'
 # }
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgres://ice_y9d4_user:5urNepYHRYv7wgsHlUyF4uDViNLdS8BW@dpg-cpe5qudds78s73eqr2jg-a.oregon-postgres.render.com/ice_y9d4',
+        default='postgres://ice_z56k_user:4Djnjp0qhc91daCJH91pzGyMWPGqnF0G@dpg-cpe8idv109ks73erh7q0-a.oregon-postgres.render.com/ice_z56k',
     )
 }
 
@@ -161,19 +161,6 @@ AUTH_USER_MODEL = 'main_app.CustomUser'
 AUTHENTICATION_BACKENDS = ['main_app.EmailBackend.EmailBackend']
 TIME_ZONE = 'Africa/Lagos'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-# EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_mails")
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
 
-# EMAIL_HOST_USER = os.environ.get('EMAIL_ADDRESS') 
-# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
-# EMAIL_USE_TLS = True
-# # DEFAULT_FROM_EMAIL = "Student Management System <admin@admin.com>"
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-prod_db = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(prod_db)
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
