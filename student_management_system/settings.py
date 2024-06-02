@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+RECAPTCHA_SITE_KEY = '6LdkIO8pAAAAAKhDbgoC9WigryTtNZS5ks0ME6rH'
+RECAPTCHA_SECRET_KEY = '6LdkIO8pAAAAAPNSpvZNNvH2zpAEe2qhb9Ys2Abi'
 import dj_database_url
 import os
 from pathlib import Path
