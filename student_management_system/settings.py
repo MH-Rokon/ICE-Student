@@ -33,8 +33,6 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ['https://ice-student.onrender.com','https://*.127.0.0.1']
 
-
-
 INSTALLED_APPS = [
     # Django Apps
     'django.contrib.admin',
